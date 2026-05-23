@@ -12,6 +12,7 @@ import plotly.graph_objects as go
 from datetime import datetime, timedelta
 import pickle
 import os
+import sys
 import calendar
 import subprocess
 
@@ -19,7 +20,7 @@ import subprocess
 def ensure_features_exist():
     if not os.path.exists("data/processed/features.csv"):
         st.info("First launch: generating features.csv from source data...")
-        subprocess.run(["python", "src/feature_engineering.py"], check=True)
+        subprocess.run([sys.executable, "src/feature_engineering.py"], check=True)
     return True
 
 ensure_features_exist()
