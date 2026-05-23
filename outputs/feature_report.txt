@@ -1,0 +1,71 @@
+
+============================================================
+AGRISENSE — FEATURE ENGINEERING PIPELINE
+============================================================
+
+[LOAD] Wide shape: (23374, 68)
+[LOAD] Date range: 2022-08-30 → 2024-08-30
+[LOAD] States: 34
+[LOAD] Commodities detected (22): ['rice', 'wheat', 'atta', 'gram_dal', 'tur_dal', 'urad_dal', 'moong_dal', 'masoor_dal', 'sugar', 'milk', 'groundnut_oil', 'mustard_oil', 'vanaspati', 'soya_oil', 'sunflower_oil', 'palm_oil', 'gur', 'tea_loose', 'salt', 'potato', 'onion', 'tomato']
+
+[RESHAPE] Long format shape: (514228, 5)
+[RESHAPE] Columns: ['date', 'state', 'commodity', 'retail_price', 'wholesale_price']
+[RESHAPE] Commodities: 22 | States: 34
+
+[IMPUTE] Missing values before imputation:
+  retail_price:    10449
+  wholesale_price: 14377
+[IMPUTE] After imputation:
+  retail_price:    3987
+  wholesale_price: 5681
+
+[TIME] Extracting calendar features...
+  Added: year, month, day_of_month, day_of_week, week_of_year, quarter,
+         day_of_year, is_weekend, is_month_end, month_sin/cos, dow_sin/cos
+
+[LAG] Creating lag features...
+  Added 12 lag/momentum columns
+
+[ROLLING] Computing rolling statistics...
+  Added 12 rolling columns
+
+[SPREAD] Computing spread features...
+  Added: price_spread, spread_ratio, margin_pct, spread_roll_7d/30d
+
+[SEASONAL] Adding harvest/seasonal flags...
+  Harvest flag: 23.9% of rows flagged
+
+[FESTIVAL] Adding festival proximity features...
+  Festival proximity coverage: 20.4% of rows
+
+[CATEGORY] Adding commodity category one-hot features...
+  Categories: {'Oil': 140244, 'Pulse': 116870, 'Cereal': 70122, 'Vegetable': 70122, 'Sugar': 46748, 'Other': 46748, 'Dairy': 23374}
+
+[REGION] Adding state region features...
+  Regions: {'East': 162954, 'North': 126962, 'South': 76582, 'Other': 72644, 'West': 43054, 'Central': 16104, 'Northeast': 15928}
+
+[FINALIZE] Cleaning up and saving...
+  Dropped 6965 rows with NaN targets. Remaining: 507,263
+
+[SUMMARY]
+  Total rows    : 507,263
+  Total columns : 84
+  Date range    : 2022-08-30 → 2024-08-30
+  States        : 34
+  Commodities   : 22
+
+  Feature groups:
+    Identity    :   3 cols
+    Target      :   2 cols
+    Time        :  18 cols
+    Cyclical    :   4 cols
+    Lags        :   8 cols
+    Momentum    :   4 cols
+    Rolling     :  15 cols
+    Spread      :   5 cols
+    Seasonal    :   6 cols
+    Festival    :  11 cols
+    Category    :   7 cols
+    Region      :   7 cols
+
+Saved → data/processed/features.csv  |  Shape: (507263, 84)

@@ -1,0 +1,265 @@
+
+==============================================================
+AGRISENSE — MODEL TRAINING PIPELINE
+==============================================================
+
+[LOAD] Shape: (507263, 84)
+[LOAD] Date range: 2022-08-30 -> 2024-08-30
+[LOAD] Commodities: ['atta', 'gram_dal', 'groundnut_oil', 'gur', 'masoor_dal', 'milk', 'moong_dal', 'mustard_oil', 'onion', 'palm_oil', 'potato', 'rice', 'salt', 'soya_oil', 'sugar', 'sunflower_oil', 'tea_loose', 'tomato', 'tur_dal', 'urad_dal', 'vanaspati', 'wheat']
+
+[ENCODE] Label encoding state and commodity...
+  States encoded: 34 classes
+  Commodities encoded: 22 classes
+  Saved -> models/label_encoders.pkl
+
+[FEATURES] Total feature columns: 80
+
+[SPLIT] Train: 2022-08-30 -> 2024-01-31 (358,760 rows)
+[SPLIT] Test : 2024-02-01  -> 2024-08-30 (148,503 rows)
+
+==============================================================
+TRAINING MODELS (1 per commodity × 3 model types = 66 total)
+==============================================================
+
+[01/22] ATTA
+----------------------------------------
+  Train rows: 16,532 | Test rows: 6,842
+  Baseline RMSE=1.33 MAE=0.70 MAPE=1.7% R2=0.970
+  XGBoost  RMSE=0.28 MAE=0.14 MAPE=0.3% R2=0.999  [stopped at 494 rounds]
+  LightGBM RMSE=0.31 MAE=0.16 MAPE=0.4% R2=0.998  [stopped at 500 rounds]
+  Done in 3.9s
+
+[02/22] GRAM_DAL
+----------------------------------------
+  Train rows: 16,532 | Test rows: 6,842
+  Baseline RMSE=2.19 MAE=1.44 MAPE=1.6% R2=0.911
+  XGBoost  RMSE=0.64 MAE=0.33 MAPE=0.4% R2=0.993  [stopped at 498 rounds]
+  LightGBM RMSE=0.63 MAE=0.34 MAPE=0.4% R2=0.993  [stopped at 370 rounds]
+  Done in 1.8s
+
+[03/22] GROUNDNUT_OIL
+----------------------------------------
+  Train rows: 15,552 | Test rows: 6,446
+  Baseline RMSE=4.87 MAE=2.59 MAPE=1.5% R2=0.966
+  XGBoost  RMSE=4.04 MAE=1.24 MAPE=0.9% R2=0.976  [stopped at 499 rounds]
+  LightGBM RMSE=3.95 MAE=1.30 MAPE=0.9% R2=0.977  [stopped at 479 rounds]
+  Done in 1.8s
+
+[04/22] GUR
+----------------------------------------
+  Train rows: 16,532 | Test rows: 6,842
+  Baseline RMSE=2.49 MAE=1.10 MAPE=1.6% R2=0.973
+  XGBoost  RMSE=0.98 MAE=0.33 MAPE=0.5% R2=0.996  [stopped at 499 rounds]
+  LightGBM RMSE=0.97 MAE=0.36 MAPE=0.5% R2=0.996  [stopped at 499 rounds]
+  Done in 1.8s
+
+[05/22] MASOOR_DAL
+----------------------------------------
+  Train rows: 16,532 | Test rows: 6,842
+  Baseline RMSE=2.22 MAE=1.29 MAPE=1.4% R2=0.913
+  XGBoost  RMSE=0.40 MAE=0.21 MAPE=0.2% R2=0.997  [stopped at 499 rounds]
+  LightGBM RMSE=0.40 MAE=0.23 MAPE=0.2% R2=0.997  [stopped at 499 rounds]
+  Done in 2.0s
+
+[06/22] MILK
+----------------------------------------
+  Train rows: 15,662 | Test rows: 6,488
+  Baseline RMSE=1.07 MAE=0.57 MAPE=0.9% R2=0.983
+  XGBoost  RMSE=0.33 MAE=0.20 MAPE=0.3% R2=0.998  [stopped at 499 rounds]
+  LightGBM RMSE=0.37 MAE=0.23 MAPE=0.4% R2=0.998  [stopped at 500 rounds]
+  Done in 1.8s
+
+[07/22] MOONG_DAL
+----------------------------------------
+  Train rows: 16,532 | Test rows: 6,842
+  Baseline RMSE=2.32 MAE=1.42 MAPE=1.2% R2=0.912
+  XGBoost  RMSE=0.51 MAE=0.30 MAPE=0.2% R2=0.996  [stopped at 497 rounds]
+  LightGBM RMSE=0.52 MAE=0.31 MAPE=0.2% R2=0.996  [stopped at 500 rounds]
+  Done in 2.0s
+
+[08/22] MUSTARD_OIL
+----------------------------------------
+  Train rows: 16,532 | Test rows: 6,842
+  Baseline RMSE=4.22 MAE=2.34 MAPE=1.6% R2=0.925
+  XGBoost  RMSE=0.87 MAE=0.54 MAPE=0.4% R2=0.997  [stopped at 498 rounds]
+  LightGBM RMSE=0.95 MAE=0.60 MAPE=0.4% R2=0.996  [stopped at 498 rounds]
+  Done in 2.4s
+
+[09/22] ONION
+----------------------------------------
+  Train rows: 16,532 | Test rows: 6,842
+  Baseline RMSE=3.35 MAE=2.36 MAPE=6.0% R2=0.878
+  XGBoost  RMSE=0.50 MAE=0.29 MAPE=0.7% R2=0.997  [stopped at 499 rounds]
+  LightGBM RMSE=0.50 MAE=0.30 MAPE=0.7% R2=0.997  [stopped at 499 rounds]
+  Done in 2.4s
+
+[10/22] PALM_OIL
+----------------------------------------
+  Train rows: 16,039 | Test rows: 6,630
+  Baseline RMSE=5.62 MAE=2.58 MAPE=2.2% R2=0.836
+  XGBoost  RMSE=1.87 MAE=0.61 MAPE=0.5% R2=0.982  [stopped at 479 rounds]
+  LightGBM RMSE=1.88 MAE=0.63 MAPE=0.5% R2=0.982  [stopped at 499 rounds]
+  Done in 1.9s
+
+[11/22] POTATO
+----------------------------------------
+  Train rows: 16,532 | Test rows: 6,842
+  Baseline RMSE=2.44 MAE=1.73 MAPE=5.6% R2=0.936
+  XGBoost  RMSE=0.74 MAE=0.30 MAPE=0.8% R2=0.994  [stopped at 499 rounds]
+  LightGBM RMSE=0.78 MAE=0.31 MAPE=0.9% R2=0.994  [stopped at 500 rounds]
+  Done in 2.6s
+
+[12/22] RICE
+----------------------------------------
+  Train rows: 16,532 | Test rows: 6,842
+  Baseline RMSE=1.46 MAE=0.83 MAPE=1.8% R2=0.961
+  XGBoost  RMSE=0.82 MAE=0.35 MAPE=0.7% R2=0.988  [stopped at 496 rounds]
+  LightGBM RMSE=0.78 MAE=0.35 MAPE=0.7% R2=0.989  [stopped at 500 rounds]
+  Done in 12.4s
+
+[13/22] SALT
+----------------------------------------
+  Train rows: 16,532 | Test rows: 6,842
+  Baseline RMSE=0.86 MAE=0.43 MAPE=2.0% R2=0.963
+  XGBoost  RMSE=0.22 MAE=0.14 MAPE=0.7% R2=0.998  [stopped at 107 rounds]
+  LightGBM RMSE=0.21 MAE=0.13 MAPE=0.6% R2=0.998  [stopped at 271 rounds]
+  Done in 6.6s
+
+[14/22] SOYA_OIL
+----------------------------------------
+  Train rows: 15,260 | Test rows: 6,323
+  Baseline RMSE=5.53 MAE=2.84 MAPE=2.2% R2=0.739
+  XGBoost  RMSE=0.94 MAE=0.52 MAPE=0.4% R2=0.992  [stopped at 499 rounds]
+  LightGBM RMSE=1.14 MAE=0.61 MAPE=0.5% R2=0.989  [stopped at 495 rounds]
+  Done in 2.0s
+
+[15/22] SUGAR
+----------------------------------------
+  Train rows: 16,532 | Test rows: 6,842
+  Baseline RMSE=0.68 MAE=0.36 MAPE=0.8% R2=0.966
+  XGBoost  RMSE=0.21 MAE=0.11 MAPE=0.2% R2=0.997  [stopped at 499 rounds]
+  LightGBM RMSE=0.21 MAE=0.12 MAPE=0.2% R2=0.997  [stopped at 500 rounds]
+  Done in 1.8s
+
+[16/22] SUNFLOWER_OIL
+----------------------------------------
+  Train rows: 16,532 | Test rows: 6,842
+  Baseline RMSE=5.59 MAE=2.81 MAPE=1.9% R2=0.940
+  XGBoost  RMSE=1.07 MAE=0.57 MAPE=0.4% R2=0.998  [stopped at 499 rounds]
+  LightGBM RMSE=1.05 MAE=0.61 MAPE=0.4% R2=0.998  [stopped at 500 rounds]
+  Done in 2.0s
+
+[17/22] TEA_LOOSE
+----------------------------------------
+  Train rows: 16,182 | Test rows: 6,698
+  Baseline RMSE=11.88 MAE=6.52 MAPE=2.2% R2=0.954
+  XGBoost  RMSE=2.48 MAE=1.36 MAPE=0.5% R2=0.998  [stopped at 473 rounds]
+  LightGBM RMSE=3.33 MAE=1.65 MAPE=0.5% R2=0.996  [stopped at 500 rounds]
+  Done in 2.0s
+
+[18/22] TOMATO
+----------------------------------------
+  Train rows: 16,532 | Test rows: 6,842
+  Baseline RMSE=8.71 MAE=5.77 MAPE=12.1% R2=0.770
+  XGBoost  RMSE=0.82 MAE=0.47 MAPE=1.0% R2=0.998  [stopped at 498 rounds]
+  LightGBM RMSE=0.84 MAE=0.51 MAPE=1.1% R2=0.998  [stopped at 492 rounds]
+  Done in 2.4s
+
+[19/22] TUR_DAL
+----------------------------------------
+  Train rows: 16,532 | Test rows: 6,842
+  Baseline RMSE=5.26 MAE=3.16 MAPE=2.0% R2=0.871
+  XGBoost  RMSE=1.37 MAE=0.68 MAPE=0.4% R2=0.991  [stopped at 493 rounds]
+  LightGBM RMSE=1.27 MAE=0.66 MAPE=0.4% R2=0.993  [stopped at 500 rounds]
+  Done in 2.6s
+
+[20/22] URAD_DAL
+----------------------------------------
+  Train rows: 16,532 | Test rows: 6,842
+  Baseline RMSE=2.68 MAE=1.73 MAPE=1.3% R2=0.947
+  XGBoost  RMSE=0.97 MAE=0.45 MAPE=0.3% R2=0.993  [stopped at 499 rounds]
+  LightGBM RMSE=0.95 MAE=0.43 MAPE=0.3% R2=0.993  [stopped at 499 rounds]
+  Done in 2.6s
+
+[21/22] VANASPATI
+----------------------------------------
+  Train rows: 16,532 | Test rows: 6,842
+  Baseline RMSE=5.81 MAE=2.89 MAPE=2.1% R2=0.881
+  XGBoost  RMSE=0.93 MAE=0.50 MAPE=0.4% R2=0.997  [stopped at 481 rounds]
+  LightGBM RMSE=0.88 MAE=0.51 MAPE=0.4% R2=0.997  [stopped at 500 rounds]
+  Done in 2.4s
+
+[22/22] WHEAT
+----------------------------------------
+  Train rows: 15,553 | Test rows: 6,446
+  Baseline RMSE=1.01 MAE=0.55 MAPE=1.5% R2=0.979
+  XGBoost  RMSE=0.56 MAE=0.21 MAPE=0.6% R2=0.994  [stopped at 496 rounds]
+  LightGBM RMSE=0.56 MAE=0.21 MAPE=0.6% R2=0.994  [stopped at 499 rounds]
+  Done in 2.3s
+
+==============================================================
+RESULTS SUMMARY
+==============================================================
+
+Saved -> outputs/model_results.csv
+
+[BEST MODEL PER COMMODITY]
+Commodity            Best           MAPE%       R2  vs Baseline MAPE%
+-----------------------------------------------------------------
+  atta                 XGBoost         0.3%    0.999  (was 1.7%)
+  gram_dal             XGBoost         0.4%    0.993  (was 1.6%)
+  groundnut_oil        XGBoost         0.9%    0.976  (was 1.5%)
+  gur                  XGBoost         0.5%    0.996  (was 1.6%)
+  masoor_dal           XGBoost         0.2%    0.997  (was 1.4%)
+  milk                 XGBoost         0.3%    0.998  (was 0.9%)
+  moong_dal            XGBoost         0.2%    0.996  (was 1.2%)
+  mustard_oil          XGBoost         0.4%    0.997  (was 1.6%)
+  onion                XGBoost         0.7%    0.997  (was 6.0%)
+  palm_oil             XGBoost         0.5%    0.982  (was 2.2%)
+  potato               XGBoost         0.8%    0.994  (was 5.6%)
+  rice                 XGBoost         0.7%    0.988  (was 1.8%)
+  salt                 LightGBM        0.6%    0.998  (was 2.0%)
+  soya_oil             XGBoost         0.4%    0.992  (was 2.2%)
+  sugar                XGBoost         0.2%    0.997  (was 0.8%)
+  sunflower_oil        XGBoost         0.4%    0.998  (was 1.9%)
+  tea_loose            XGBoost         0.5%    0.998  (was 2.2%)
+  tomato               XGBoost         1.0%    0.998  (was 12.1%)
+  tur_dal              LightGBM        0.4%    0.993  (was 2.0%)
+  urad_dal             LightGBM        0.3%    0.993  (was 1.3%)
+  vanaspati            XGBoost         0.4%    0.997  (was 2.1%)
+  wheat                XGBoost         0.6%    0.994  (was 1.5%)
+
+[OVERALL AVERAGE METRICS BY MODEL]
+Model         Avg MAPE%   Avg RMSE    Avg MAE   Avg R2
+-------------------------------------------------------
+  Baseline          2.51%      3.709      2.091    0.917
+  XGBoost           0.49%      0.980      0.447    0.994
+  LightGBM          0.52%      1.022      0.480    0.994
+
+[DIFFICULTY RANKING — by LightGBM MAPE (ascending = easiest)]
+  masoor_dal             MAPE=  0.2%  R2=0.997  [EASY]
+  moong_dal              MAPE=  0.2%  R2=0.996  [EASY]
+  sugar                  MAPE=  0.2%  R2=0.997  [EASY]
+  urad_dal               MAPE=  0.3%  R2=0.993  [EASY]
+  gram_dal               MAPE=  0.4%  R2=0.993  [EASY]
+  atta                   MAPE=  0.4%  R2=0.998  [EASY]
+  milk                   MAPE=  0.4%  R2=0.998  [EASY]
+  vanaspati              MAPE=  0.4%  R2=0.997  [EASY]
+  mustard_oil            MAPE=  0.4%  R2=0.996  [EASY]
+  tur_dal                MAPE=  0.4%  R2=0.993  [EASY]
+  sunflower_oil          MAPE=  0.4%  R2=0.998  [EASY]
+  soya_oil               MAPE=  0.5%  R2=0.989  [EASY]
+  palm_oil               MAPE=  0.5%  R2=0.982  [EASY]
+  gur                    MAPE=  0.5%  R2=0.996  [EASY]
+  tea_loose              MAPE=  0.5%  R2=0.996  [EASY]
+  wheat                  MAPE=  0.6%  R2=0.994  [EASY]
+  salt                   MAPE=  0.6%  R2=0.998  [EASY]
+  rice                   MAPE=  0.7%  R2=0.989  [EASY]
+  onion                  MAPE=  0.7%  R2=0.997  [EASY]
+  groundnut_oil          MAPE=  0.9%  R2=0.977  [EASY]
+  potato                 MAPE=  0.9%  R2=0.994  [EASY]
+  tomato                 MAPE=  1.1%  R2=0.998  [EASY]
+
+Total training time: 1.1 minutes
+Models saved: 45 files in models/
+Plots saved:  24 files in outputs/plots/

@@ -1,0 +1,11 @@
+data/processed/features.csv
+data/raw/
+__pycache__/
+*.pyc
+.env
+.DS_Store
+outputs/plots/
+*.log
+.claude/
+streamlit_err.txt
+streamlit_out.txt
