@@ -12,15 +12,13 @@ import plotly.graph_objects as go
 from datetime import datetime, timedelta
 import pickle
 import os
-import sys
+import runpy
 import calendar
-import subprocess
 
 @st.cache_data(show_spinner="Building feature dataset... (~60 seconds on first launch)")
 def ensure_features_exist():
     if not os.path.exists("data/processed/features.csv"):
-        st.info("First launch: generating features.csv from source data...")
-        subprocess.run([sys.executable, "src/feature_engineering.py"], check=True)
+        runpy.run_path("src/feature_engineering.py")
     return True
 
 ensure_features_exist()
