@@ -85,12 +85,9 @@ log("\n[IMPUTE] Missing values before imputation:")
 log(f"  retail_price:    {df['retail_price'].isna().sum()}")
 log(f"  wholesale_price: {df['wholesale_price'].isna().sum()}")
 
-def impute_group(group):
-    group["retail_price"]    = group["retail_price"].ffill().bfill().interpolate(method="linear", limit_direction="both")
-    group["wholesale_price"] = group["wholesale_price"].ffill().bfill().interpolate(method="linear", limit_direction="both")
-    return group
-
-df = df.groupby(["commodity", "state"], group_keys=False).apply(impute_group)
+for _col in ["retail_price", "wholesale_price"]:
+    df[_col] = (df.groupby(["commodity", "state"])[_col]
+                .transform(lambda x: x.ffill().bfill().interpolate(method="linear", limit_direction="both")))
 
 log(f"[IMPUTE] After imputation:")
 log(f"  retail_price:    {df['retail_price'].isna().sum()}")
@@ -130,17 +127,14 @@ log("\n[LAG] Creating lag features...")
 
 LAG_DAYS = [1, 7, 14, 30]
 
-def add_lags(group):
-    for lag in LAG_DAYS:
-        group[f"retail_lag_{lag}d"]    = group["retail_price"].shift(lag)
-        group[f"wholesale_lag_{lag}d"] = group["wholesale_price"].shift(lag)
-    for lag in [7, 30]:
-        group[f"retail_change_{lag}d"]     = group["retail_price"] - group[f"retail_lag_{lag}d"]
-        group[f"retail_pct_chg_{lag}d"]    = group["retail_price"].pct_change(lag) * 100
-        group[f"wholesale_pct_chg_{lag}d"] = group["wholesale_price"].pct_change(lag) * 100
-    return group
-
-df = df.groupby(["commodity", "state"], group_keys=False).apply(add_lags)
+_grp = df.groupby(["commodity", "state"])
+for lag in LAG_DAYS:
+    df[f"retail_lag_{lag}d"]    = _grp["retail_price"].shift(lag)
+    df[f"wholesale_lag_{lag}d"] = _grp["wholesale_price"].shift(lag)
+for lag in [7, 30]:
+    df[f"retail_change_{lag}d"]     = df["retail_price"] - df[f"retail_lag_{lag}d"]
+    df[f"retail_pct_chg_{lag}d"]    = _grp["retail_price"].transform(lambda x, _l=lag: x.pct_change(_l) * 100)
+    df[f"wholesale_pct_chg_{lag}d"] = _grp["wholesale_price"].transform(lambda x, _l=lag: x.pct_change(_l) * 100)
 lag_cols = [c for c in df.columns if "lag" in c or "chg" in c]
 log(f"  Added {len(lag_cols)} lag/momentum columns")
 
@@ -150,22 +144,19 @@ log(f"  Added {len(lag_cols)} lag/momentum columns")
 # ─────────────────────────────────────────────
 log("\n[ROLLING] Computing rolling statistics...")
 
-def add_rolling(group):
-    for w in [7, 30]:
-        group[f"retail_roll_mean_{w}d"]    = group["retail_price"].rolling(w, min_periods=3).mean()
-        group[f"retail_roll_std_{w}d"]     = group["retail_price"].rolling(w, min_periods=3).std()
-        group[f"wholesale_roll_mean_{w}d"] = group["wholesale_price"].rolling(w, min_periods=3).mean()
-        group[f"wholesale_roll_std_{w}d"]  = group["wholesale_price"].rolling(w, min_periods=3).std()
-        group[f"retail_zscore_{w}d"]       = (
-            (group["retail_price"] - group[f"retail_roll_mean_{w}d"])
-            / (group[f"retail_roll_std_{w}d"] + 1e-8)
-        )
-    group["retail_roll_min_30d"] = group["retail_price"].rolling(30, min_periods=3).min()
-    group["retail_roll_max_30d"] = group["retail_price"].rolling(30, min_periods=3).max()
-    group["retail_30d_range"]    = group["retail_roll_max_30d"] - group["retail_roll_min_30d"]
-    return group
-
-df = df.groupby(["commodity", "state"], group_keys=False).apply(add_rolling)
+_grp = df.groupby(["commodity", "state"])
+for w in [7, 30]:
+    df[f"retail_roll_mean_{w}d"]    = _grp["retail_price"].transform(lambda x, _w=w: x.rolling(_w, min_periods=3).mean())
+    df[f"retail_roll_std_{w}d"]     = _grp["retail_price"].transform(lambda x, _w=w: x.rolling(_w, min_periods=3).std())
+    df[f"wholesale_roll_mean_{w}d"] = _grp["wholesale_price"].transform(lambda x, _w=w: x.rolling(_w, min_periods=3).mean())
+    df[f"wholesale_roll_std_{w}d"]  = _grp["wholesale_price"].transform(lambda x, _w=w: x.rolling(_w, min_periods=3).std())
+    df[f"retail_zscore_{w}d"]       = (
+        (df["retail_price"] - df[f"retail_roll_mean_{w}d"])
+        / (df[f"retail_roll_std_{w}d"] + 1e-8)
+    )
+df["retail_roll_min_30d"] = _grp["retail_price"].transform(lambda x: x.rolling(30, min_periods=3).min())
+df["retail_roll_max_30d"] = _grp["retail_price"].transform(lambda x: x.rolling(30, min_periods=3).max())
+df["retail_30d_range"]    = df["retail_roll_max_30d"] - df["retail_roll_min_30d"]
 roll_cols = [c for c in df.columns if "roll" in c or "zscore" in c]
 log(f"  Added {len(roll_cols)} rolling columns")
 
@@ -179,12 +170,9 @@ df["price_spread"] = df["retail_price"] - df["wholesale_price"]
 df["spread_ratio"] = df["retail_price"] / (df["wholesale_price"] + 1e-8)
 df["margin_pct"]   = (df["price_spread"] / (df["wholesale_price"] + 1e-8)) * 100
 
-def add_spread_rolling(group):
-    group["spread_roll_7d"]  = group["price_spread"].rolling(7,  min_periods=2).mean()
-    group["spread_roll_30d"] = group["price_spread"].rolling(30, min_periods=5).mean()
-    return group
-
-df = df.groupby(["commodity", "state"], group_keys=False).apply(add_spread_rolling)
+_grp = df.groupby(["commodity", "state"])
+df["spread_roll_7d"]  = _grp["price_spread"].transform(lambda x: x.rolling(7,  min_periods=2).mean())
+df["spread_roll_30d"] = _grp["price_spread"].transform(lambda x: x.rolling(30, min_periods=5).mean())
 log("  Added: price_spread, spread_ratio, margin_pct, spread_roll_7d/30d")
 
 
