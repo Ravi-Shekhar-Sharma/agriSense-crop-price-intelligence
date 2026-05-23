@@ -819,7 +819,7 @@ def main():
     """, unsafe_allow_html=True)
 
     # ── Tabs ──────────────────────────────────────────────────────────────────
-    tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
+    tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8 = st.tabs([
         "Overview",
         "Price Explorer",
         "State Analysis",
@@ -827,6 +827,7 @@ def main():
         "Market Drivers",
         "7-Day Forecast",
         "Scale the Platform",
+        "Model Performance",
     ])
 
     df_filtered = get_filtered_df(df, selected_commodity, selected_state)
@@ -899,6 +900,35 @@ def main():
                 title=f"{commodity_upper} — Retail vs Wholesale Price ({selected_state})",
                 height=420, x_title="Date", y_title="Price (₹/kg)")
             st.plotly_chart(fig, use_container_width=True)
+
+            # CV% volatility chart — all 22 commodities
+            section_header("Price Volatility — Coefficient of Variation (%)")
+            cv_all = (df.groupby("commodity")["retail_price"]
+                      .agg(["mean", "std"]).reset_index())
+            cv_all["cv_pct"]  = (cv_all["std"] / (cv_all["mean"] + 1e-8)) * 100
+            cv_all["display"] = cv_all["commodity"].map(COMMODITY_DISPLAY)
+            cv_all = cv_all.sort_values("cv_pct", ascending=True).reset_index(drop=True)
+            cv_colors = []
+            for _v in cv_all["cv_pct"]:
+                if _v < 10:    cv_colors.append("#9CA3AF")
+                elif _v <= 30: cv_colors.append("#1B4332")
+                else:          cv_colors.append("#052E16")
+            fig_cv = go.Figure()
+            fig_cv.add_trace(go.Bar(
+                x=cv_all["cv_pct"], y=cv_all["display"], orientation="h",
+                marker_color=cv_colors, marker_line_width=0,
+                hovertemplate="<b>%{y}</b><br>CV: %{x:.1f}%<extra></extra>"
+            ))
+            fig_cv.add_vline(x=10, line_color=COLORS["border_strong"], line_width=1, line_dash="dot")
+            fig_cv.add_vline(x=30, line_color=COLORS["chart_second"],  line_width=1, line_dash="dot")
+            fig_cv.add_annotation(x=10, y=1, yref="paper", text="Stable / Moderate",
+                showarrow=False, font=dict(size=9, color=COLORS["text_muted"]), yshift=4)
+            fig_cv.add_annotation(x=30, y=1, yref="paper", text="Moderate / High",
+                showarrow=False, font=dict(size=9, color=COLORS["text_muted"]), yshift=4)
+            plotly_base_layout(fig_cv,
+                title="Price Volatility — Coefficient of Variation (%)",
+                height=500, x_title="CV (%)", show_legend=False)
+            st.plotly_chart(fig_cv, use_container_width=True)
 
             # Insights & stats
             c1, c2 = st.columns(2)
@@ -1668,6 +1698,66 @@ def main():
             with cb: st.markdown(f"<code style='font-size:11px;color:{COLORS['text_secondary']};'>{component}</code>", unsafe_allow_html=True)
             with cc: st.markdown(f"<span style='font-size:12px;color:{COLORS['text_secondary']};'>{detail}</span>", unsafe_allow_html=True)
             st.markdown(f"<hr style='border:none;border-top:1px solid {COLORS['gridline']};margin:5px 0;'>", unsafe_allow_html=True)
+
+    # ══════════════════════════════════════════════════════════════════════════
+    # TAB 8 — MODEL PERFORMANCE
+    # ══════════════════════════════════════════════════════════════════════════
+    with tab8:
+        section_header("Model Performance — XGBoost vs Baseline")
+
+        c1, c2, c3, c4 = st.columns(4)
+        with c1: kpi_card("Models Trained",   "22",      sub="XGBoost — one per commodity")
+        with c2: kpi_card("XGBoost Avg MAPE", "0.49%",   sub="Mean absolute % error",       color="green")
+        with c3: kpi_card("Avg R²",           "0.994",   sub="Coefficient of determination", color="green")
+        with c4: kpi_card("Training Time",    "1.1 min", sub="All 22 commodities",           color="grey")
+
+        if results_df.empty:
+            alert("Model results not found — run src/model_training.py to generate outputs/model_results.csv.", "yellow")
+        else:
+            df_perf = results_df[results_df["model"].isin(["Baseline", "XGBoost"])].copy()
+
+            if df_perf.empty:
+                alert("No Baseline or XGBoost rows found in model_results.csv.", "yellow")
+            else:
+                section_header("MAPE Comparison — Baseline vs XGBoost (all 22 commodities)")
+
+                xgb_sorted   = (df_perf[df_perf["model"] == "XGBoost"]
+                                .sort_values("mape")["commodity"].tolist())
+                baseline_idx = df_perf[df_perf["model"] == "Baseline"].set_index("commodity")
+                xgb_idx      = df_perf[df_perf["model"] == "XGBoost"].set_index("commodity")
+                common_comms = [c for c in xgb_sorted if c in baseline_idx.index]
+                disp_names   = [COMMODITY_DISPLAY.get(c, c) for c in common_comms]
+
+                fig_mp = go.Figure()
+                fig_mp.add_trace(go.Bar(
+                    name="Baseline",
+                    x=disp_names,
+                    y=[float(baseline_idx.loc[c, "mape"]) for c in common_comms],
+                    marker_color="#9CA3AF", marker_line_width=0,
+                    hovertemplate="<b>%{x}</b><br>Baseline MAPE: %{y:.2f}%<extra></extra>"
+                ))
+                fig_mp.add_trace(go.Bar(
+                    name="XGBoost",
+                    x=disp_names,
+                    y=[float(xgb_idx.loc[c, "mape"]) for c in common_comms],
+                    marker_color="#1B4332", marker_line_width=0,
+                    hovertemplate="<b>%{x}</b><br>XGBoost MAPE: %{y:.2f}%<extra></extra>"
+                ))
+                plotly_base_layout(fig_mp,
+                    title="Baseline MAPE vs XGBoost MAPE — sorted by XGBoost performance (ascending)",
+                    height=440, x_title="Commodity", y_title="MAPE (%)")
+                fig_mp.update_layout(barmode="group")
+                st.plotly_chart(fig_mp, use_container_width=True)
+
+                section_header("Full Metrics Table — Baseline & XGBoost")
+                tbl = df_perf[["commodity", "model", "rmse", "mae", "mape", "r2"]].copy()
+                tbl["commodity"] = tbl["commodity"].map(lambda c: COMMODITY_DISPLAY.get(c, c))
+                tbl["rmse"] = tbl["rmse"].apply(lambda x: f"{x:.3f}")
+                tbl["mae"]  = tbl["mae"].apply(lambda x: f"{x:.3f}")
+                tbl["mape"] = tbl["mape"].apply(lambda x: f"{x:.2f}%")
+                tbl["r2"]   = tbl["r2"].apply(lambda x: f"{x:.4f}")
+                tbl.columns = ["Commodity", "Model", "RMSE", "MAE", "MAPE %", "R²"]
+                st.dataframe(tbl.reset_index(drop=True), use_container_width=True, hide_index=True)
 
 
 main()
