@@ -98,4 +98,4 @@ On first launch, `features.csv` is auto-generated from `merged_retail_wholesale.
 
 ---
 
-*Built by **Ravi Shekhar Sharma** | B.Tech Civil Engineering, IIT Guwahati | C&A Club Winter Project*
+*Built by **Ravi Shekhar Sharma** | C&A Winter Project 2025*
